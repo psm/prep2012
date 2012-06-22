@@ -1,0 +1,25 @@
+#Histórico de PREP 2012
+
+La idea de este repo es poder dar información histórica de los resultados del _Programa de Resultados Electorales Preeliminares_ del IFE para las elecciones federales de 2012 en México.
+
+##crawler.rb
+Es un script que parsea el XML que provee el IFE para su app, y mete los datos a una base de datos MongoDB
+
+###Requerimientos
+Sólo he probado este script bajo el siguiente entorno:
+
+* **Ruby** >= 1.9.2 
+* **Nokogiri** >= 1.5.2
+* **Mongo** >= 1.5.2
+
+##Roadmap
+Habrá un API que mostrará los últimos resultados en formato JSON, así como los resultados históricos (me parece que cada 10 minutos se actualizará)
+
+#Licencia
+Copyright (C) 2012 Partido Surrealista Mexicano
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
