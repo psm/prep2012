@@ -1,0 +1,324 @@
+/* Generales*/
+body {
+	font: 100%/1.5em "freight-sans-pro", "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	background: #f16;
+}
+
+body.cruces { background-image: url('/resources/img/cruces.png');}
+body.lineas { background-image: url('/resources/img/lineas.png');}
+body.diamantes { background-image: url('/resources/img/diamantes.png');}
+body.diagonales { background-image: url('/resources/img/diagonales.png');}
+body.dots { background-image: url('/resources/img/dots.png');}
+
+
+a {
+	text-decoration: none;
+	color: #2e92de;
+}
+a:hover {
+	color: #1a69a6;
+}
+
+p {
+	line-height: 1.5em;
+	margin:10px 0;
+}
+
+/* Footer*/
+#branding {
+	width: 100%;
+	background: #222;
+	border-top: 1px solid #444;
+	
+	color: #ccc;
+	font-size: 0.875em;
+	font-weight: lighter;
+	text-align: center;
+	text-shadow: 0 1px 2px rgba(0,0,0, 1);
+}
+#branding span {
+	margin: 0 10px;
+}
+
+/* Título*/
+h1 {
+	width: 100%;
+	font-size: 3em;
+	font-weight: 900;
+	line-height: 50px;
+	text-align: center;
+}
+
+h2 {
+	font-size: 2em;
+}
+
+h3 {
+	font-size: 1.5em;
+}
+
+/* Pantallas < 500px*/
+@media screen and (max-width: 500px) {
+	body {
+		font-size: 87.5%;
+		line-height: 1.5em;
+	}
+	#branding {
+		font-size: 0.75em;
+		padding: 0;
+	}
+	#el_usuario {
+		display: block;
+		position: static;
+	}
+	#navegacion {
+		padding: 0;
+		background: #ccc;
+		text-align: center;
+		
+		height: auto;
+	}
+	#nav_principal {
+		margin: 0;
+		width: 100%;
+		position: static;
+		top: inherit;
+	}
+	.nav_boton {
+		padding: 0;
+		border: none;
+		width: 	100%;
+	}
+	.usuario_boton {
+		display: block;
+		padding: 0;
+		border: none;
+		border-radius: 0;
+		
+		font-size: 1.1em;
+		line-height: 50px;
+		
+		-webkit-box-shadow: 
+			inset 0 1px 0 rgba(255,255,255, 1),
+			inset 0 -1px 0 rgba(0,0,0, 1);
+		-moz-box-shadow: 
+			inset 0 1px 0 rgba(255,255,255, 0.8),
+			inset 0 -1px 0 rgba(0,0,0, 0.1);
+		-ms-box-shadow: 
+		 	inset 0 1px 0 rgba(255,255,255, .8),
+		 	inset 0 -1px 0 rgba(0,0,0, .4);
+		box-shadow: 
+		 	inset 0 1px 0 rgba(255,255,255, .8),
+		 	inset 0 -1px 0 rgba(0,0,0, .4);
+	}
+	#usuario_prefs {
+		width: 60%;
+		margin: 0;
+	}
+	#el_usuario .usuario_avatar {
+		width: 36px;
+		height: 36px;
+		margin: 7px;
+	}
+	#usuario_salir {
+		width: 40%;
+		text-align: center;
+	}
+	#contenido .individual {
+		width: 96%;
+	}
+	nav.interno a, 
+	nav.interno .boton, 
+	nav.interno button {
+		top: 6px;
+		left: 5px;
+		padding: 7px 8px;
+	}
+	nav.interno a.agregar, 
+	nav.interno .boton.agregar, 
+	nav.interno button.agregar {
+		right: 5px;
+	}
+	nav.interno a .sustantivo, 
+	nav.interno .boton .sustantivo, 
+	nav.interno button .sustantivo {
+		display: none;
+	}
+}
+
+/* Pantallas entre 800px y 1000px*/
+@media screen and (min-width: 800px) and (max-width: 1000px) {
+	#contenido .principal,
+	#contenido .secundario,
+	#contenido .terciario,
+	#contenido .dos-principal,
+	#contenido .dos-secundario {
+		margin: 0 1.0416666667%;
+	}
+	#contenido .principal,
+	#contenido .dos-principal {
+		width: 64.5833333333%;
+		float: left;
+	}
+	#contenido .secundario,
+	#contenido .dos-secundario {
+		width: 31.25%;
+		float: right;
+	}
+	#contenido .secundario::after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+	#contenido .terciario {
+		width: 97.9166666667%;
+		float: none;
+	}
+}
+
+/*Pantallas entre 1000 y 1400*/
+@media screen and (min-width:1000px) and (max-width: 1400px) {
+	#contenido .principal,
+	#contenido .secundario,
+	#contenido .terciario,
+	#contenido .dos-principal,
+	#contenido .dos-secundario {
+		margin: 0 0.8333333333%;
+	}
+	#contenido .principal,
+	#contenido .dos-principal {
+		width: 65%;
+		float: left;
+	}
+	#contenido .secundario,
+	#contenido .dos-secundario {
+		width: 31.6666666667%;
+		float: right;
+	}
+	#contenido .secundario::after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+	#contenido .terciario {
+		width: 98.3333333333%;
+		float: none;
+	}
+}
+
+/* Pantallas > 1024px*/
+@media screen and (min-width: 1023px) {
+	#nav_principal {
+		display: block;
+		width: auto;
+		
+		position: static;
+	}
+	#nav_principal a {
+		float: left;
+		padding: 0 20px;
+		
+		line-height: 50px;
+		text-shadow: 0 1px 2px rgba(0,0,0, 0.5);
+		
+		border-right: 1px solid #484848;
+		
+		background: #555;
+		background-image: linear-gradient(bottom, #525252 0%, #707070 100%);
+		background-image: -o-linear-gradient(bottom, #525252 0%, #707070 100%);
+		background-image: -moz-linear-gradient(bottom, #525252 0%, #707070 100%);
+		background-image: -webkit-linear-gradient(bottom, #525252 0%, #707070 100%);
+		background-image: -ms-linear-gradient(bottom, #525252 0%, #707070 100%);
+		-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#707070', EndColorStr='#525252')";
+		
+		-webkit-box-shadow: 
+			inset 0 1px 0 rgba(255,255,255, 0.2),
+			inset 0 -1px 0 rgba(0,0,0, 0.2),
+			inset 1px 0 0 rgba(255,255,255, 0.1);
+		-moz-box-shadow: 
+			inset 0 1px 0 rgba(255,255,255, 0.2),
+			inset 0 -1px 0 rgba(0,0,0, 0.2),
+			inset 1px 0 0 rgba(255,255,255, 0.1);
+		-ms-box-shadow: 
+			inset 0 1px 0 rgba(255,255,255, 0.2),
+			inset 0 -1px 0 rgba(0,0,0, 0.2),
+			inset 1px 0 0 rgba(255,255,255, 0.1);
+		box-shadow: 
+			inset 0 1px 0 rgba(255,255,255, 0.2),
+			inset 0 -1px 0 rgba(0,0,0, 0.2),
+			inset 1px 0 0 rgba(255,255,255, 0.1);
+	}
+	#nav_principal a:hover {
+		background: #4f4f4f;
+		background-image: linear-gradient(bottom, #444 0%, #555 100%);
+		background-image: -o-linear-gradient(bottom, #444 0%, #555 100%);
+		background-image: -moz-linear-gradient(bottom, #444 0%, #555 100%);
+		background-image: -webkit-linear-gradient(bottom, #444 0%, #555 100%);
+		background-image: -ms-linear-gradient(bottom, #444 0%, #555 100%);
+		-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#555555', EndColorStr='#444444')";
+		
+	}
+	#nav_principal a.activo {
+		background: #333;
+	}
+	#clear-01, #nav_secciones {
+		display: none;
+	}
+	#contenido .individual {
+		width: 70%;
+	}
+}
+
+/* Pantallas > 1400px (Monitores tipo MBP)*/
+@media screen and (min-width: 1400px) {
+	#contenido .principal,
+	#contenido .secundario,
+	#contenido .terciario,
+	#contenido .dos-principal,
+	#contenido .dos-secundario {
+		margin: 0 0.6410256410%;
+	}
+	#contenido .principal {
+		width: 48.7179487179%;
+		float: left;
+	}
+	#contenido .secundario {
+		width: 23.7179487179%;
+		float: left;
+	}
+	#contenido .terciario {
+		width: 23.7179487179%;
+		float: right;
+	}
+	#contenido .individual {
+		width: 60%;
+	}
+	
+	#contenido .dos-principal {
+		width: 57.0512820513%;
+		float: left;
+	}
+	#contenido .dos-secundario {
+		width: 40.3846153846%;
+		float: right;
+	}
+	#contenido .dos-container {
+		max-width: 1500px;
+	}
+}
+
+/* Pantallas > 1600px (Monitores grandes)*/
+@media screen and (min-width:1600px) {
+	
+}
+
+/* Pantallas > 820 (Monitores medianos)*/
+@media screen and (max-device-width: 820px) {
+	* {
+	    -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape */
+	}
+}
