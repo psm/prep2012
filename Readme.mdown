@@ -2,6 +2,8 @@
 
 La idea de este repo es poder dar información histórica de los resultados del _Programa de Resultados Electorales Preeliminares_ del IFE para las elecciones federales de 2012 en México.
 
+El API es consumible desde http://prep.pati.to
+
 ##crawler.rb
 Es un script que parsea el XML que provee el IFE para su app, y mete los datos a una base de datos MongoDB
 
@@ -12,8 +14,9 @@ Sólo he probado este script bajo el siguiente entorno:
 * **Nokogiri** >= 1.5.2
 * **Mongo** >= 1.5.2
 
-##Roadmap
-Habrá un API que mostrará los últimos resultados en formato JSON, así como los resultados históricos (me parece que cada 10 minutos se actualizará)
+##API
+
+Sin mezcal no pienso documentar.
 
 #Licencia
 Copyright (C) 2012 Partido Surrealista Mexicano
