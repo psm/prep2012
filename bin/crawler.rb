@@ -49,7 +49,6 @@ end
 $mongo = Mongo::Connection.new.db('prep2012')
 
 xml = getServer
-puts xml;
 dia = xml.at_xpath('//fechaActualizacion').text.strip
 if (dia=='')
   dia = '2012-07-02'
