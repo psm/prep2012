@@ -3,22 +3,53 @@
 
 require 'nokogiri'
 require 'open-uri'
+require 'httparty'
 require 'json'
 require 'mongo'
 require 'date'
 
 puts "#{Time.new().to_s} - Empezando el crawler"
 
-begin
-  xml = Nokogiri::XML(open('http://p12.ife.mx/documentos/PREP/2012/MOVILXML.XML'))
-rescue Exception => e
-  puts 'ERROR!'
-  puts 'El IFE no quiso responder :('
-  exit 1
+$endpoints = [
+	'http://207.249.77.11/prep/MOVILXML.xml',
+	'http://74.200.195.178/prep/MOVILXML.xml',
+	'http://elecciones2012.gruporeforma.com/prep/MOVILXML.xml',
+	'http://ife.canal22.org.mx/prep/MOVILXML.xml',
+	'http://prep.elecciones.terra.com.mx/prep/MOVILXML.xml',
+	'http://prep.eluniversal.com.mx/prep/MOVILXML.xml',
+	'http://prep.milenio.com/prep/MOVILXML.xml',
+	'http://prep.unotv.com/prep/MOVILXML.xml',
+	'http://prep2012.aztecanoticias.com.mx/prep/MOVILXML.xml',
+	'http://prep2012.elimparcial.com/prep/MOVILXML.xml',
+	'http://prep2012.noticierostelevisa.esmas.com/prep/MOVILXML.xml',
+	'http://prep2012.notimex.com.mx/prep/MOVILXML.xml',
+	'http://prep2012.radioformula.com.mx/prep/MOVILXML.xml',
+	'http://r12.eleccionesenmexico.mx/prep/MOVILXML.xml',
+	'http://www.difusorife.ipn.mx/prep/MOVILXML.xml',
+  'http://www.difusorPREP-elecciones2012.unam.mx/prep/MOVILXML.xml'
+]
+
+def getServer
+  if ($endpoints.count == 0)
+    puts "Algo se cagó, no pude encontrar el XML en ningún endpoint!";
+    exit
+  end
+  server = $endpoints[0]
+  puts "intentando #{server}"
+  begin
+    Nokogiri::XML(HTTParty.get(server, timeout:5).body)
+  rescue Exception => e
+    puts "#{server} no jaló, va el que sigue"
+    $endpoints.delete(server)
+    puts $endpoints[0]
+    getServer
+  end
 end
 
 $mongo = Mongo::Connection.new.db('prep2012')
 
+xml = getServer
+puts xml;
 dia = xml.at_xpath('//fechaActualizacion').text.strip
 if (dia=='')
   dia = '2012-07-02'
