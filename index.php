@@ -18,9 +18,9 @@ namespace enchinga{
 
 	/**
 	* HTTP: el maestro de ceremonias
-	* 
+	*
 	* Esta clase estática nomás corre el programa y rutea las madres
-	* Tiene propiedades estáticas que chance y puede que luego sirvan al 
+	* Tiene propiedades estáticas que chance y puede que luego sirvan al
 	* controlador instanciado.
 	*
 	* @package	Enchinga
@@ -29,7 +29,7 @@ namespace enchinga{
 	* @copyright Partido Surrealista Mexicano
 	*/
 	class http {
-	
+
 		//El request completo
 		public static $request;
 		//La base absoluta de este archivo
@@ -43,8 +43,8 @@ namespace enchinga{
 		private static $instance;
 		//Los métodos permitidos de HTTP por default
 		private static $allowedMethods = array('get', 'post');
-	
-	
+
+
 		/**
 		 * Inicializa el framework
 		 *
@@ -54,22 +54,22 @@ namespace enchinga{
 		public static function init()
 		{
 			$uri = str_replace('?'.$_SERVER['QUERY_STRING'], '', trim($_SERVER['REQUEST_URI'], '/'));
-		
+
 			self::$request = new \StdClass;
 			self::$request->method = $_SERVER['REQUEST_METHOD'];
 			self::$request->segments = array();
 			if( strlen($uri)>0 ){
 				self::$request->segments = explode('/', urldecode($uri));
 			}
-				
+
 			self::$request->isAjax = (bool) isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
 			self::$root = dirname(__FILE__).'/';
-		
+
 			self::route();
 		}
-	
-	
+
+
 		/**
 		 * Enruta el request al controller dentro del app necesario
 		 *
@@ -80,16 +80,16 @@ namespace enchinga{
 		{
 			//tomamos una copia de los segmentos
 			$s = self::$request->segments;
-		
+
 			//Cargamos el objeto de Config
 			$config = new Config;
 			//Y sacamos los datos de app/config/general.php
 			$general = $config->config;
 			self::$allowedMethods = $general->allowedMethods? (array) $general->allowedMethods : self::$allowedMethods;
-		
+
 			self::$config = $config;
 			$rutas = $config->config->rutas;
-			
+
 			if( $rutas && count($s) > 0 ){
 				//Si hay rutas en app/config/rutas.php y no estamos visitando /
 				list($page, $method, $args) = self::translate($s, $rutas);
@@ -98,16 +98,16 @@ namespace enchinga{
 				if( isset($s[0]) && ($s[0]!='main' && $s[0]!='index') ){
 					$page = $s[0];
 				} else {
-					//El default lo toma de app/config/general::mainController, si no, es main; 
+					//El default lo toma de app/config/general::mainController, si no, es main;
 					$page = $general->mainController? : 'main';
 				}
 				//El método default siempre es index;
 				$method = isset($s[1])? $s[1] : 'index';
 				$args = array_splice($s,2);
 			}
-		
+
 			$method = $method? : 'index';
-		
+
 			if( self::$request->method != 'GET' ){
 				//Si el método de HTTP no es GET, entonces appendeamos el nómbre del método
 				//Sí el método de HTTP no está dentro de la lista de los permitidos, usamos POST
@@ -115,7 +115,7 @@ namespace enchinga{
 				$suffix = in_array($srm, self::$allowedMethods)? $srm : 'post';
 				$method .= "_$suffix";
 			}
-		
+
 			//Requerimos el archivo que contiene el controlador que instanciaremos
 			$controllerFile = APPPATH."/$page.php";
 			if( file_exists($controllerFile) ) {
@@ -124,7 +124,7 @@ namespace enchinga{
 				$claseController = "\\app\\$page";
 				//Y lo examinamos por reflexión;
 				$controller = new \ReflectionClass($claseController);
-				
+
 				/*
 					Si podemos llamar Instancia->método está determinado por:
 					- Instancia tiene un método _call
@@ -137,7 +137,7 @@ namespace enchinga{
 					self::$instance = $controller->newInstance();
 					//Sí tenemos el método Instancia::__call y no existe Instancia::$method
 					if( $controller->hasMethod('__call') && !$controller->hasMethod($method) ){
-						// Llamamos el método call con los argumentos del URL, tomando como el primer elemento el nómbre del 
+						// Llamamos el método call con los argumentos del URL, tomando como el primer elemento el nómbre del
 						// método que pretendíamos llamar
 						$controller->getMethod('__call')->invokeArgs(self::$instance, array($method, $args));
 					} else {
@@ -158,10 +158,10 @@ namespace enchinga{
 						//No tenemos un controller de Errores
 						throw new Exception("No encontré un método $method para $page", 404);
 					}
-					
-					
+
+
 				}
-			
+
 			} else {
 				//No está implementado el Controlador, llamamos un error
 				$error_controller = $config->config->errorController? : 'errores';
@@ -177,11 +177,11 @@ namespace enchinga{
 					throw new Exception("No pude ubicar el controlador «{$page}»", 404);
 					//throw new \Exception("$page.php no existe", 404);
 				}
-			
+
 			}
 		}
-	
-	
+
+
 		/**
 		 * Traduce los segmentos a las rutas,
 		 *
@@ -197,11 +197,11 @@ namespace enchinga{
 			$args = array_splice($segments, 2);
 			//El URI original del request
 			$req_uri = join('/',self::$request->segments);
-		
+
 			foreach($routes as $regex => $replacement){
 				//Escapamos el regex y colocamos los flags de [u]nicode, case [i]nsensitive y nuevas línea[s]
 				$regex = '/^'.str_replace('/', '\/', $regex).'$/uis';
-			
+
 				//reseteamos el array de matches
 				$matches = array();
 				if( preg_match($regex, $req_uri, $matches) ){
@@ -209,7 +209,7 @@ namespace enchinga{
 					// y los traducimos, reemplazando dónde sea necesario desde el URI original
 					$replacements = explode('/', $replacement);
 					$translation = explode('/', preg_replace($regex, $replacement, $req_uri));
-				
+
 					//Regresamos inmediatamente los resultados
 					return array(
 						$translation[0], //controlador
@@ -218,16 +218,16 @@ namespace enchinga{
 					);
 				}
 			}
-		
+
 			return array(
 				$original_controller,
 				$original_method,
 				$args
 			);
-		
+
 		}
-	
-	
+
+
 		/**
 		 * Regresamos la única instancia del Controller que debemos haber instanciado
 		 *
@@ -240,10 +240,10 @@ namespace enchinga{
 		{
 			return self::$instance;
 		}
-	
+
 	} //end HTTP
-	
-	
+
+
 	/**
 	 * Regresa la instancia actual de Enchinga
 	 *
@@ -253,7 +253,7 @@ namespace enchinga{
 	function instance(){
 		return http::instance();
 	}
-	
+
 
 	/**
 	 * Controller, el objeto feliz que nos da felicidad y facilidad
@@ -265,11 +265,11 @@ namespace enchinga{
 	 */
 	abstract class Controller extends HTTP
 	{
-	
+
 		//dónde guardo las librerías para poderlas pedir en chinga con __get
 		protected $librerias = array();
 		public static $request;
-	
+
 		/**
 		 * Construye el objeto principal, del que heredo todas las bondades
 		 * del framework
@@ -279,15 +279,15 @@ namespace enchinga{
 		 */
 		public function __construct()
 		{
-			// Saco todas las variables interesantes de HTTP para poder 
+			// Saco todas las variables interesantes de HTTP para poder
 			// pedirlas desde mis controllers
 			$this->request = parent::$request;
 			$this->base = parent::$base;
 			$this->root = parent::$root;
-			$this->host = "http://".$_SERVER['HTTP_HOST'];	
-			
+			$this->host = "http://".$_SERVER['HTTP_HOST'];
+
 			if( file_exists("config.php") ){
-			
+
 				require "config.php";
 				$vars = get_defined_vars();
 
@@ -298,38 +298,38 @@ namespace enchinga{
 						$config[$key] = $value;
 					}
 				}
-			
+
 				$this->config = (object) $config;
 			}
-			
+
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Autocarga las librerías de app/config/autoload
 		 *
-		 * @param string $cosas las librerías a requerir 
+		 * @param string $cosas las librerías a requerir
 		 * @return void
 		 * @author Roberto Hidalgo
 		 */
 		public function autoload( $cosas )
 		{
 			if ($cosas) {
-				// Si no tenemos librerías, ni pa qué seguir. Config me regresa objetos, así 
+				// Si no tenemos librerías, ni pa qué seguir. Config me regresa objetos, así
 				// que typecastearé
 				$cosas = (array) $cosas;
-			
+
 				// Sólo podemos auto-cargar helpers y librerías, ya que lo demás es lazy loading
 				$permitidos = array( 'helpers', 'librerias' );
-			
-			
+
+
 				foreach ($cosas as $tipo=>$archivos) {
 					if (!in_array($tipo, $permitidos)) {
 						// No está permitido el tipo, continua con el resto
 						continue;
 					}
-				
+
 					switch( $tipo) {
 						case 'helpers':
 							foreach ($archivos as $archivo) {
@@ -350,19 +350,19 @@ namespace enchinga{
 							die('No puedo auto-cargar '.$tipo);
 						break;
 					}
-				
+
 				}
 			}
 		}
-	
-	
+
+
 		/**
 		 * Carga helpers sin el autoloader
 		 *
-		 * @param string $archivo 
+		 * @param string $archivo
 		 * @return void
 		 * @author Roberto Hidalgo
-		 */ 
+		 */
 		public function helper($archivo)
 		{
 			$relative_path = "/helpers/$archivo.php";
@@ -375,8 +375,8 @@ namespace enchinga{
 				throw new Exception("No existe el $tipo $archivo");
 			}
 		}
-	
-	
+
+
 		/**
 		 * Instancía una librería y regresa el objeto de cache;
 		 *
@@ -394,11 +394,11 @@ namespace enchinga{
 				$c = new $clase;
 				$libs[$libreria] = &$c;
 			}
-			
+
 			return $libs[$libreria];
 		}
-	
-	
+
+
 		/**
 		 * Método de conveniencia para sacar el nombre del controller de esta instancia
 		 *
@@ -409,8 +409,8 @@ namespace enchinga{
 		{
 			return str_replace('app\\', '', get_class($this));
 		}
-	
-	
+
+
 		/**
 		 * Redirect
 		 *
@@ -428,8 +428,8 @@ namespace enchinga{
 			echo "Redirigiendo a $this->base$donde";
 			if ( $die ) { die(); }
 		}
-	
-	
+
+
 		/**
 		 * Shortcut para $_GET
 		 *
@@ -445,9 +445,9 @@ namespace enchinga{
 				return $_GET;
 			}
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Shortcut para $_POST
 		 *
@@ -463,7 +463,7 @@ namespace enchinga{
 				return $_POST;
 			}
 		}
-	
+
 		/**
 		 * Shortcut para $_FILES
 		 *
@@ -479,16 +479,16 @@ namespace enchinga{
 				return $_FILES;
 			}
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Vista templateada ó no
 		 *
 		 * @param	string	$view		El path relativo a la aplicación de la vista
 		 * @param	string	$data		El array de datos que voy a mandar
 		 * @param	string	$plantilla	El nombre de la plantilla ó false si no quiero plantilla
-		 * @return	void 
+		 * @return	void
 		 * @author	Roberto Hidalgo
 		 */
 		public function view($_view, $_data=array(), $_plantilla=FALSE)
@@ -505,13 +505,13 @@ namespace enchinga{
 				require APPPATH."/views/$_plantilla.php";
 			}
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Output de JSON con header adecuado
 		 *
-		 * @param string $stuff 
+		 * @param string $stuff
 		 * @return void
 		 * @author Roberto Hidalgo
 		 */
@@ -520,12 +520,12 @@ namespace enchinga{
 			header('Content-type: text/json');
 			echo json_encode($stuff);
 		}
-	
-	
-	}
-	
 
-	
+
+	}
+
+
+
 	/**
 	 * El Lazyloader de configuraciones de la aplicación
 	 *
@@ -533,18 +533,18 @@ namespace enchinga{
 	 * @package enchinga
 	 */
 	class Config {
-	
+
 		private $configs = array();
-	
+
 		/**
 		 * Método mágico para cargar un archivo de configuración al objeto enchinga\Config->nombreDelArchivo
 		 *
-		 * @param string $archivo 
+		 * @param string $archivo
 		 * @return void
 		 * @author Roberto Hidalgo
 		 */
 		public function __get($archivo)
-		{		
+		{
 			if( !in_array($archivo, array_keys($this->configs)) ){
 				$file = APPPATH."/$archivo.php";
 				if( file_exists($file) ){
@@ -556,16 +556,16 @@ namespace enchinga{
 					throw new \Exception("No existe $file /$archivo.php");
 				}
 			}
-		
+
 			return $this->configs[$archivo];
-		
+
 		}
-	
-	
+
+
 		/**
 		 * Hace la carga del archivo y parsea las variables a un objeto
 		 *
-		 * @param string $archivo 
+		 * @param string $archivo
 		 * @return void
 		 * @author Roberto Hidalgo
 		 */
@@ -580,11 +580,11 @@ namespace enchinga{
 				$value = is_array($value)? (object) $value : $value;
 				$config[$key] = $value;
 			}
-				
+
 			return $config;
 		}
-	
-	
+
+
 		/**
 		 * Regresa la versión del framework
 		 *
@@ -596,12 +596,12 @@ namespace enchinga{
 		{
 			return VERSION;
 		}
-		
-	
+
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Pendejaditas de sesión
 	 *
@@ -609,16 +609,16 @@ namespace enchinga{
 	 * @author	Roberto Hidalgo
 	 */
 	class Session {
-	
+
 		private $vars = array();
-	
-	
+
+
 		public function __construct()
 		{
 			session_start();
 		}
-	
-	
+
+
 		/**
 		 * Método mágico para meter una variable $nombre, con valor $valor a la sesión
 		 *
@@ -632,25 +632,25 @@ namespace enchinga{
 			if( !session_id() ){
 				session_start();
 			}
-		
+
 			//Si valor == 0 | false | null, vacía esta variable
 			if( empty($valor) ){
 				//delete de los pobres
 				$this->__unset($nombre);
 			}
-		
+
 			if( is_array($valor) || is_object($valor) ){
 				$valor = serialize($valor);
 			}
 			$this->vars[$nombre] = $valor;
 			$_SESSION[$nombre] = $valor;
 		}
-	
-	
+
+
 		/**
 		 * Método mágico para sacar el valor de una variable de sesión
 		 *
-		 * @param	string	$que 
+		 * @param	string	$que
 		 * @return	void
 		 * @author	Roberto Hidalgo
 		 */
@@ -659,7 +659,7 @@ namespace enchinga{
 			if( !session_id() ){
 				session_start();
 			}
-		
+
 			if( !isset($this->vars[$que]) && isset($_SESSION[$que]) ){
 				//metamos a cache
 				$this->vars[$que] = unserialize($_SESSION[$que]);
@@ -667,7 +667,7 @@ namespace enchinga{
 			return $this->vars[$que];
 
 		}
-	
+
 		public function __unset($que)
 		{
 			if( !session_id() ){
@@ -676,7 +676,7 @@ namespace enchinga{
 			unset($this->vars[$que]);
 			unset($_SESSION[$que]);
 		}
-	
+
 	}//end sesión
 
 
@@ -687,11 +687,11 @@ namespace enchinga{
 	 * @author	Roberto Hidalgo
 	 */
 	class db {
-	
-	
+
+
 		protected $dbo;
 		public static $last_query = '';
-	
+
 		/**
 		 * Instancia una conexión a la base de datos.
 		 *
@@ -703,20 +703,20 @@ namespace enchinga{
 		{
 			if( !$config ){
 				$base = \enchinga\http::$config->config;
-				$config = $set? $base->$set : $base->db;	
+				$config = $set? $base->$set : $base->db;
 			} else {
 				require 'db/exception.php';
 			}
-		
+
 			$driver = 'enchinga\db\\'.strtolower($config->driver).'\\factory';
 			$factory = new \ReflectionClass($driver);
-		
+
 			$this->dbo = $factory->newInstance($config);
 		}
-	
-	
+
+
 		/**
-		 * Instanciar una conexión con los parámetros del archivo de configuración, referenciados por nombre de variable 
+		 * Instanciar una conexión con los parámetros del archivo de configuración, referenciados por nombre de variable
 		 *
 		 * @param string $config El nombre de la variable en el archivo de configuración
 		 * @return enchinga\db
@@ -725,9 +725,9 @@ namespace enchinga{
 		public static function usa($config)
 		{
 			return new \enchinga\db($config);
-		} 
-	
-	
+		}
+
+
 		/**
 		 * El método mágico para regresar una colección/tabla sobre el cual interactuar.
 		 *
@@ -738,8 +738,8 @@ namespace enchinga{
 		public function __get($cual){
 			return $this->dbo->newObject($cual);
 		}
-	
-	
+
+
 		/**
 		 * Ejecutar directamente un comando en la base de datos
 		 *
@@ -747,11 +747,11 @@ namespace enchinga{
 		 * @return void FALSE si algo falló, el resultado directo si funcionó el query
 		 * @author Roberto Hidalgo
 		 */
-		public function query($q){		
+		public function query($q){
 			return $this->dbo->query($q);
 		}
-	
-	
+
+
 		/**
 		 * El último query que se envió a la base de datos
 		 *
@@ -762,8 +762,8 @@ namespace enchinga{
 		{
 			return self::$last_query;
 		}
-	
-	
+
+
 		/**
 		 * La versión de la base de datos
 		 *
@@ -773,8 +773,8 @@ namespace enchinga{
 		public function version(){
 			return $this->dbo->version();
 		}
-	
-	
+
+
 	}
 
 
@@ -785,17 +785,17 @@ namespace enchinga{
 	 * @author Roberto Hidalgo
 	 */
 	class Exception extends \Exception{
-	
+
 		static private $codes = array(
 			404 => 'Not Found'
 		);
-	
-	
+
+
 		/**
 		 * Al throw una nueva excepción, podemos generar HTML pitero para mostrar el error fatal
 		 *
-		 * @param string $error 
-		 * @param string $titulo 
+		 * @param string $error
+		 * @param string $titulo
 		 * @author Roberto Hidalgo
 		 */
 		public function __construct($message=null, $code=404)
@@ -807,57 +807,57 @@ namespace enchinga{
 			//este exit es para que no me mande más exceptions a menos que sean necesarios
 			exit;
 		}
-	
-	
+
+
 		public function backtrace()
 		{
-		
+
 			$result = '';
 			if ( ENV == 'produccion' ){
 				return '';
 			}
-		
-		
+
+
 			$url = ini_get('xdebug.file_link_format')? : false;
-		
+
 			$result = '<h2>Stack:</h2>';
 			$filename = self::shortpath($this->file);
-		
+
 			$link = "$filename @ $this->line";
 			if( $url ){
 				$href = str_replace(array('%f', '%l'), array($this->file, $this->line), $url);
 				$link = "<a href=\"$href\">$link</a>";
 			}
 			$result .= "<p>[main] $link </p>";
-		
+
 			foreach( self::getTrace() as $ex ){
 				extract($ex);
 				$filename = self::shortpath($file);
 				$link = "$filename @ $line";
-			
+
 				$function = "$class{$type}$function";
-			
+
 				if( $url ){
 					$href = str_replace(array('%f', '%l'), array($file, $line), $url);
 					$link = "<a href=\"$href\">$link</a>";
 				}
 				$result .= "<p>[$function] $link </p>";
 			}
-		
+
 			return $result;
 		}
-	
-	
+
+
 		public static function shortpath($path)
 		{
 			return str_replace(dirname(SYSPATH), '', $path);
 		}
-	
+
 	}
-	
-	
-	
-	
+
+
+
+
 	if($_SERVER['SCRIPT_NAME']=='/index.php'){
 		http::init();
 	}
@@ -878,7 +878,7 @@ namespace enchinga\db\Mongo {
 
 		public function __construct($config)
 		{
-			$options = array('database' => $config->database);
+			$options = array('db' => $config->database);
 			if($config->user && $config->password){
 				$options['username'] = $config->user;
 				$options['password'] = $config->password;
@@ -891,29 +891,29 @@ namespace enchinga\db\Mongo {
 				throw new Exception("DANG! No me pude conectar a la db: {$e->getMessage()}", "Mongo Se cagó");
 			}
 		}
-	
-	
+
+
 		public function query($stuff)
 		{
 			$result = $this->connection->command($stuff);
 			return $result;
 		}
-	
-	
+
+
 		public function newObject($table)
 		{
 			return new driver($table, $this->connection);
 		}
-	
-	
+
+
 		public function version()
 		{
 			$v = $this->selectDB('admin')->command(array('buildinfo'=>TRUE));
 			return $v['version'];
 		}
-	
+
 	}
-	
+
 
 	/**
 	 * Driver de MongoDB para Enchinga
@@ -966,8 +966,8 @@ namespace enchinga\db\Mongo {
 		 * @var string
 		 */
 		private static $last_error;
-	
-	
+
+
 		/**
 		 * Al construir este objeto, tenemos acceso a una colección tipo MongoDB
 		 *
@@ -976,17 +976,17 @@ namespace enchinga\db\Mongo {
 		 * @see enchinga\db\driver::construct(), enchinga\db::__get()
 		 * @uses enchinga\db\mongo\factory	Tengo que pasarle un objeto construído por la fábrica de este driver
 		 * @author Roberto Hidalgo
-		 */	
+		 */
 		public function __construct($coleccion, $link)
 		{
 			$this->dbo = $link;
 			return parent::__construct($link, $coleccion);
 		}
-		
-	
+
+
 		/**
 		 * Limitar la cantidad de resultados que regresará la DB
-		 * 
+		 *
 		 * Este método es chainable, para ser usado así: <code><?php $this->db->Coleccion->limit(5)->find(); ?></code>
 		 *
 		 * @param int $qty La cantidad de resultados
@@ -1000,13 +1000,13 @@ namespace enchinga\db\Mongo {
 			}
 			return $this;
 		}
-	
-	
+
+
 		/**
 		 * Ordena los elementos resultantes por la condición especificada
-		 * 
+		 *
 		 * Este método es chainable, para ser usado así: <code><?php $this->db->Coleccion->order('_id', -1)->find(); ?></code>
-		 * 
+		 *
 		 * @todo Permitir varias condiciones de órden
 		 * @param string $by El nombre del campo
 		 * @param mixed $type El tipo de órden, ya sea SQL ("ASC", "DESC") ó [1,-1]
@@ -1019,12 +1019,12 @@ namespace enchinga\db\Mongo {
 				'ASC' => 1,
 				'DESC' => -1
 			);
-		
-		
+
+
 			if ( !is_array($by) ) {
 				$type = is_string($type)? $operators[strtoupper($type)] : $type;
 				$order = array($by => $type);
-			} else {			
+			} else {
 				if ( array_keys($by) === range(0, count($by) - 1) ){
 					//si es un array no asociativo, lo hacemos assoc
 					$type = is_string($by[1])? $operators[strtoupper($by[1])] : $by[1];
@@ -1033,12 +1033,12 @@ namespace enchinga\db\Mongo {
 					$order = $by;
 				}
 			}
-		
+
 			$this->sort = $order;
 			return $this;
 		}
-	
-	
+
+
 		/**
 		 * Alias para {@link enchinga\db\Mongo\Driver::set()}
 		 *
@@ -1050,11 +1050,11 @@ namespace enchinga\db\Mongo {
 		{
 			return self::set(func_get_args());
 		}
-	
-	
+
+
 		/**
 		 * Especificar las propiedades de los elementos a regresar
-		 * 
+		 *
 		 * Este método es chainable, para ser usado así: <code><?php $this->db->set(array('_id', 'nombre'))->find(); ?></code>
 		 *
 		 * @param mixed $args Acepta un string delimitado por comas con las propiedades, un array con las propiedades necesarias ó dos argumentos: el nombre de la propiedad y el valor de la misma, al estilo Mongo
@@ -1068,13 +1068,13 @@ namespace enchinga\db\Mongo {
 			if (count($args)==1) {
 				if (is_array($args[0]) || is_object($args[0])) {
 					$set = (array) $args[0];
-				
+
 					if ( array_keys($set) === range(0, count($set) - 1) ){
 						//si es un array no asociativo, lo hacemos assoc
 						$set = array_fill_keys($set, '1');
 					}
-				
-				
+
+
 					$this->set = $this->set + (array) $set;
 				} else {
 					$this->set += array_fill_keys(explode(',', $args[0]), 1);
@@ -1082,32 +1082,32 @@ namespace enchinga\db\Mongo {
 						$this->set[trim($key)] = 1;
 					}*/
 				}
-			
+
 			} elseif (count($args)==2) {
 				$this->set[$args[0]] = $args[1];
 			}
-		
+
 			return $this;
 		}
-	
-	
+
+
 		/**
 		 * Saltar n cantidad de elementos de la colección a regresar
-		 * 
+		 *
 		 * Este método es chainable, para ser usado así: <code><?php $this->db->skip(3)->find(); ?></code>
 		 *
 		 * @param int $qty La cantidad de  elementos a saltar
 		 * @return object
 		 * @author Roberto Hidalgo
 		 */
-	
+
 		public function skip($qty)
 		{
 			$this->skip = $qty;
 			return $this;
 		}
-	
-	
+
+
 		/**
 		 * Ejecutar los elementos, regresando un array con los objetos encontrados
 		 *
@@ -1119,13 +1119,13 @@ namespace enchinga\db\Mongo {
 		public function find($where=array(), $parse=TRUE)
 		{
 			$where = $parse? self::parseConditions($where) : $where;
-		
+
 			$cursor = parent::find($where, $this->set);
-		
+
 			if (count($this->set) > 0) {
 				$cursor->fields($this->set);
 			}
-		
+
 			if ($cursor->count() > 0) {
 				if ($this->limit) {
 					$cursor = $cursor->limit($this->limit);
@@ -1134,7 +1134,7 @@ namespace enchinga\db\Mongo {
 					}
 				}
 				if ($this->sort) {
-				
+
 					$cursor = $cursor->sort($this->sort);
 				}
 				if ($this->skip) {
@@ -1142,7 +1142,7 @@ namespace enchinga\db\Mongo {
 				}
 				$results = array();
 				$count = $cursor->count(TRUE);
-			
+
 				//Mongo regresa un iterador, no un arreglo contable, así que lo convierto a uno, ejecutando en este paso el query
 				$results = array();
 				foreach ($cursor as $id => $object) {
@@ -1155,8 +1155,8 @@ namespace enchinga\db\Mongo {
 			self::cleanup();
 			return FALSE;
 		}
-	
-	
+
+
 		/**
 		 * Buscar un sólo elemento de la colección, regresando un objeto con el elemento encontrado
 		 *
@@ -1176,8 +1176,8 @@ namespace enchinga\db\Mongo {
 			}
 			return $cursor;
 		}
-	
-	
+
+
 		/**
 		 * Insertar un objeto en la colección
 		 *
@@ -1197,13 +1197,13 @@ namespace enchinga\db\Mongo {
 				self::$last_error = $e->getMessage();
 				return FALSE;
 			}
-		
+
 		}
-	
-	
+
+
 		/**
 		 * Eliminar un objeto de la colección
-		 * 
+		 *
 		 * En caso de que no se especifiquen condiciones, este método eliminará TODOS los objetos de la colección
 		 *
 		 * @param array $where Las condiciones para seleccionar los objetos a eliminar
@@ -1217,12 +1217,12 @@ namespace enchinga\db\Mongo {
 			$where = $options['parse']? self::parseConditions($where) : $where;
 			return parent::remove($where, $options);
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Regresa la cantidad total de elementos en esta colección
-		 * 
+		 *
 		 * Aunque \MongoCollection cuenta con el método \MongoCollection::count(), por estandarizar el proceso con otros drivers
 		 * implementamos este método. {@see enchinga\db\Driver::total()}
 		 *
@@ -1233,9 +1233,9 @@ namespace enchinga\db\Mongo {
 		{
 			return self::count();
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Actualizar las propiedades de los elementos especificados
 		 *
@@ -1253,16 +1253,16 @@ namespace enchinga\db\Mongo {
 				'parse'		=> TRUE
 			);
 			$options += $defaults;
-		
+
 			$where = $options['parse']? self::parseConditions($where) : $where;
 			unset($options['parse']);
-		
+
 			$set = $this->set;
-		
+
 			if (!preg_grep('/^\$/', array_keys($set))) {
 				$set = array('$set' => $set);
 			}
-		
+
 			try {
 				$result = parent::update((object) $where, $set, $options);
 				if ($options['safe'] && !$result['updatedExisting']) {
@@ -1272,11 +1272,11 @@ namespace enchinga\db\Mongo {
 				self::$last_error = $e->getMessage();
 				return FALSE;
 			}
-		
+
 			return TRUE;
 		}
-	
-	
+
+
 		/**
 		 * Regresa el último error de la última operación en esta colección
 		 *
@@ -1287,9 +1287,9 @@ namespace enchinga\db\Mongo {
 		{
 			return self::$last_error;
 		}
-	
-	
-	
+
+
+
 		/**
 		 * Resetear las condiciones, límite, órden y propiedades de requests pasados
 		 *
@@ -1303,11 +1303,11 @@ namespace enchinga\db\Mongo {
 			$this->sort = NULL;
 			$this->order = array();
 		}
-	
-	
+
+
 		/**
 		 * Limpiar las condiciones a código válido de MongoDB
-		 * 
+		 *
 		 * Test Cases que pasa:
 		 * <code><?php $where = array(
 		 * 	'normal = pants<conSalmones',
@@ -1320,7 +1320,7 @@ namespace enchinga\db\Mongo {
 		 * 	'float a int' => '0.1',
 		 * 	'pendejada no typecasteada' => '0.9 volts' ,
 		 * 	'string como string' => "'1'",
-		 * 	'bool' => true 
+		 * 	'bool' => true
 		 * );
 		 * $where = '4f1dfcb923066c27b7367b42'; ?></code>
 		 *
@@ -1337,7 +1337,7 @@ namespace enchinga\db\Mongo {
 				}
 				return array('_id' => $where);
 			}
-		
+
 			$operadores = array(
 				'=' => '',
 				'!=' => '$ne',
@@ -1351,30 +1351,30 @@ namespace enchinga\db\Mongo {
 				'>'	=> '$gt',
 				'<' => '$lt'
 			);
-		
+
 			$ops = array();
 			if ($where===NULL) {
 				return $ops;
 			}
 			foreach ($where as $sujeto=>$predicado) {
 				//asumimos que todo es [poo] => 'pants'
-			
+
 				if (is_int($sujeto)) {
 					// 'poo = pants'
 					preg_match("/^(?P<sujeto>[\w.\d]+)\s*(?P<operador>(!=|=|<=|>=)+)\s*(?P<predicado>.+)/i", $predicado, $matches);
 					$sujeto = $matches['sujeto'];
 					$predicado = $matches['predicado'];
 					$operador = $operadores[$matches['operador']];
-				
+
 					if ($operador){
 						$predicado = array($operador => $predicado);
 					}
-				
+
 					if (is_numeric($predicado)) {
 						$predicado = !strpos($predicado,'.') ? intval($predicado) : (float) $predicado;
 					}
 				}
-			
+
 				if (is_string($predicado) ) {
 					trim($predicado);
 					if (preg_match('/^(?P<operador>(([~!<>]=[>]?)|[<>])+)\s*(?P<predicado>.+)/', $predicado, $matches)) {
@@ -1385,12 +1385,12 @@ namespace enchinga\db\Mongo {
 							if (is_numeric($matches['predicado'])) {
 								$matches['predicado'] = !strpos($matches['predicado'],'.') ? intval($matches['predicado']) : (float) $matches['predicado'];
 							}
-						
+
 							$predicado = array($operadores[$matches['operador']] => $matches['predicado']);
 						}
 					}
 				}
-			
+
 				if (is_array($predicado) && !preg_grep('/^\$/', array_keys($predicado)) && $sujeto!='$or' ) {
 					// [poo] => array('p','a','n','t','s') pero no [poo] => array('$nin' => array('p','a','n','t','s'))
 					$predicado = array('$in' => $predicado);
@@ -1401,10 +1401,10 @@ namespace enchinga\db\Mongo {
 			return $ops;
 		}
 
-	
+
 	}
-	
-	
+
+
 }
 
 
@@ -1425,11 +1425,11 @@ function fecha($timestamp) {
 	$hora = 60*$minuto;
 	$dia = 24*$hora;
 	$diff = time()-$timestamp;
-		
+
 	if($timestamp==null){
 		return "nunca";
 	}
-	
+
 	if($diff<60){
 		//hace diff segundos;
 		return "hace $diff segundos";

@@ -41,10 +41,10 @@ class Main extends \Enchinga\Controller {
 		$fields = $find = array($tipo, 'fecha');
 		$q = $this->db->resultados->set($fields);
 		if ( $uno ) {
-			$data = $q->findOne(array());
+			$data = $this->db->resultados->order('fecha', -1)->limit(1)->find();
 			$result = array(
-						'timestamp' => $data->fecha->sec
-							)+$data->$tipo;
+						'timestamp' => current($data)->fecha->sec
+							)+current($data)->$tipo;
 		} else {
 			$end = $this->get('end')? : time();
 			$start = $this->get('start')? : time()-60*10;

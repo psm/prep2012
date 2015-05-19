@@ -10,6 +10,7 @@ require 'date'
 
 puts "#{Time.new().to_s} - Empezando el crawler"
 
+
 $endpoints = [
 	'http://207.249.77.11/prep/MOVILXML.xml',
 	'http://74.200.195.178/prep/MOVILXML.xml',
@@ -34,10 +35,11 @@ def getServer
     puts "Algo se cagó, no pude encontrar el XML en ningún endpoint!";
     exit
   end
-  server = $endpoints[0]
+  server = $endpoints.sample
   puts "intentando #{server}"
   begin
-    Nokogiri::XML(HTTParty.get(server, timeout:5).body)
+    xml = HTTParty.get(server, timeout:5).body;
+    return Nokogiri::XML(xml.to_s)
   rescue Exception => e
     puts "#{server} no jaló, va el que sigue"
     $endpoints.delete(server)
@@ -49,24 +51,30 @@ end
 $mongo = Mongo::Connection.new.db('prep2012')
 
 xml = getServer
-dia = xml.at_xpath('//fechaActualizacion').text.strip
-if (dia=='')
-  dia = '2012-07-02'
-end
+host = 'localhost'
+  
+$mongo = Mongo::Connection.new(host).db('prep2012')
+
+dia = '2012-07-02'#xml.at_xpath('//fechaActualizacion').text.strip
 
 hora = xml.at_xpath('//horaActualizacion').text.strip.gsub(/ hrs. \(UTC-5\)/, '')+':00 -0500';
 #00:00 hrs. (UTC-5)
 fecha = dia+' '+hora
 fecha = Time.parse(fecha)
 
+#puts fecha
+#exit;
+
 puts "Resultados actualizados en #{fecha}"
 
-last = $mongo['resultados'].find_one({}, {sort:['fecha', -1]});
+last = $mongo['prep'].find_one({}, {sort:['fecha', -1]});
 if last && last['fecha'] >= fecha
   puts "No actualizo, ya tengo estos datos"
-  exit;
+ exit;
 end
 
+puts last
+puts fecha
 
 candidaturas = xml.xpath('//candidatura')
 
@@ -100,11 +108,11 @@ candidaturas.each do |c|
     begin
       
       if partido.at_xpath('entidades')
-         resultados[nombre] = partido.at_xpath("entidades").text.to_i
+         resultados[nombre] = (partido.at_xpath("entidades").text.to_i*3.125).floor
        elsif partido.at_xpath('distritos')
-         resultados[nombre] = partido.at_xpath("distritos").text.to_i
+         resultados[nombre] = partido.at_xpath("distritos").text.to_i/3
       else
-         resultados[nombre] = {votos: partido.at_xpath("votos#{extra}").text.to_i, porcentaje: partido.at_xpath("porcentaje#{extra}").text.to_i}
+         resultados[nombre] = {votos: partido.at_xpath("votos#{extra}").text.gsub(',', '').to_i, porcentaje: partido.at_xpath("porcentaje#{extra}").text.gsub(',', '').to_i}
        end
      
     rescue Exception => e
@@ -115,8 +123,10 @@ candidaturas.each do |c|
     end
   end
   
+  caca = if node.actasProcesadas.text.gsub(',','').to_i>0 then ((node.actasProcesadas.text.gsub(',','').to_f/node.actasTotales.text.gsub(',','').to_f)*100).floor  else 0; end;
+  
   rs[key.to_sym] = {
-    'avance' => if node.actasProcesadas.text.to_i>0 then  node.actasTotales/node.actasProcesadas  else 0; end,
+    'avance' => if node.actasProcesadas.text.gsub(',','').to_i>0 then ((node.actasProcesadas.text.gsub(',','').to_f/node.actasTotales.text.gsub(',','').to_f)*100).floor  else 0; end,
     'resultados' => resultados
   }
 end
